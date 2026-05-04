@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>CapacitaciónSH</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+–bg: #0a0e1a;
+–surface: #111827;
+–surface2: #1a2236;
+–border: #1e2d45;
+–accent: #00d4aa;
+–accent2: #0ea5e9;
+–warn: #f59e0b;
+–danger: #ef4444;
+–success: #22c55e;
+–text: #e2e8f0;
+–muted: #64748b;
+–card: #141e2e;
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+font-family: ‘Sora’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+font-size: 15px;
+line-height: 1.6;
+overflow-x: hidden;
+}
+
+/* LOADER */
+#loader {
+position: fixed; inset: 0;
+background: var(–bg);
+display: flex; align-items: center; justify-content: center;
+z-index: 9999;
+flex-direction: column; gap: 16px;
+}
+.loader-logo { font-size: 2.5rem; font-weight: 800; color: var(–accent); letter-spacing: -2px; }
+.loader-sub { color: var(–muted); font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; }
+.loader-bar { width: 200px; height: 2px; background: var(–border); border-radius: 2px; overflow: hidden; }
+.loader-fill { height: 100%; background: linear-gradient(90deg, var(–accent), var(–accent2)); animation: loadfill 1.2s ease forwards; }
+@keyframes loadfill { from { width: 0 } to { width: 100% } }
+
+/* SCREENS */
+.screen { display: none; min-height: 100vh; animation: fadeIn 0.4s ease; }
+.screen.active { display: flex; flex-direction: column; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* HEADER */
+.app-header {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+padding: 14px 20px;
+display: flex; align-items: center; gap: 12px;
+position: sticky; top: 0; z-index: 100;
+backdrop-filter: blur(10px);
+}
+.app-logo { font-size: 1.1rem; font-weight: 800; color: var(–accent); letter-spacing: -0.5px; }
+.app-logo span { color: var(–text); }
+.header-badge {
+margin-left: auto;
+background: var(–border);
+color: var(–accent);
+font-size: 0.7rem;
+font-weight: 600;
+padding: 3px 10px;
+border-radius: 20px;
+letter-spacing: 1px;
+text-transform: uppercase;
+font-family: ‘JetBrains Mono’, monospace;
+}
+.btn-back {
+background: none; border: none; color: var(–muted);
+font-size: 1.3rem; cursor: pointer; padding: 4px;
+display: flex; align-items: center;
+}
+
+/* MAIN CONTENT */
+.content { flex: 1; padding: 20px; max-width: 640px; width: 100%; margin: 0 auto; }
+.content-wide { flex: 1; padding: 20px; width: 100%; }
+
+/* CARDS */
+.card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 20px;
+margin-bottom: 16px;
+}
+.card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.card-icon {
+width: 44px; height: 44px;
+background: linear-gradient(135deg, var(–accent), var(–accent2));
+border-radius: 12px;
+display: flex; align-items: center; justify-content: center;
+font-size: 1.2rem; flex-shrink: 0;
+}
+.card-title { font-size: 1rem; font-weight: 700; }
+.card-sub { font-size: 0.8rem; color: var(–muted); margin-top: 2px; }
+
+/* INPUTS */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 0.8rem; color: var(–muted); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+.form-input, .form-select, .form-textarea {
+width: 100%;
+background: var(–surface2);
+border: 1.5px solid var(–border);
+color: var(–text);
+border-radius: 12px;
+padding: 14px 16px;
+font-family: ‘Sora’, sans-serif;
+font-size: 0.95rem;
+transition: border-color 0.2s;
+-webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+outline: none;
+border-color: var(–accent);
+box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
+}
+.form-textarea { resize: vertical; min-height: 100px; }
+.form-select option { background: var(–surface2); }
+
+/* BUTTONS */
+.btn {
+display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+padding: 14px 24px;
+border-radius: 12px;
+font-family: ‘Sora’, sans-serif;
+font-weight: 600; font-size: 0.9rem;
+border: none; cursor: pointer;
+transition: all 0.2s; text-decoration: none;
+letter-spacing: 0.2px;
+-webkit-tap-highlight-color: transparent;
+}
+.btn-primary { background: var(–accent); color: #000; }
+.btn-primary:hover { background: #00bfa0; transform: translateY(-1px); }
+.btn-primary:active { transform: scale(0.97); }
+.btn-secondary { background: var(–surface2); color: var(–text); border: 1.5px solid var(–border); }
+.btn-secondary:hover { border-color: var(–accent); }
+.btn-danger { background: var(–danger); color: #fff; }
+.btn-whatsapp { background: #25d366; color: #fff; }
+.btn-whatsapp:hover { background: #1ebe57; }
+.btn-full { width: 100%; }
+.btn-sm { padding: 8px 16px; font-size: 0.8rem; border-radius: 8px; }
+.btn-icon { padding: 10px; border-radius: 10px; }
+
+/* STAT CARDS */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.stat-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 14px;
+padding: 16px;
+}
+.stat-num { font-size: 2rem; font-weight: 800; color: var(–accent); line-height: 1; font-family: ‘JetBrains Mono’, monospace; }
+.stat-label { font-size: 0.75rem; color: var(–muted); margin-top: 4px; font-weight: 500; }
+
+/* TABS */
+.tab-bar {
+display: flex; gap: 4px;
+background: var(–surface2);
+border-radius: 12px;
+padding: 4px;
+margin-bottom: 20px;
+}
+.tab-btn {
+flex: 1; padding: 10px 8px;
+background: none; border: none;
+color: var(–muted); font-family: ‘Sora’, sans-serif;
+font-size: 0.8rem; font-weight: 600;
+border-radius: 9px; cursor: pointer;
+transition: all 0.2s;
+}
+.tab-btn.active { background: var(–accent); color: #000; }
+
+/* EMPLOYEE LIST */
+.emp-row {
+display: flex; align-items: center; gap: 12px;
+padding: 14px 0;
+border-bottom: 1px solid var(–border);
+}
+.emp-row:last-child { border-bottom: none; }
+.emp-avatar {
+width: 40px; height: 40px;
+background: linear-gradient(135deg, var(–surface2), var(–border));
+border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+font-weight: 700; font-size: 0.9rem; color: var(–accent);
+flex-shrink: 0;
+}
+.emp-name { font-weight: 600; font-size: 0.9rem; }
+.emp-info { font-size: 0.75rem; color: var(–muted); }
+.emp-status { margin-left: auto; }
+.badge {
+display: inline-block;
+padding: 3px 10px;
+border-radius: 20px;
+font-size: 0.7rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+font-family: ‘JetBrains Mono’, monospace;
+}
+.badge-ok { background: rgba(34,197,94,0.15); color: var(–success); }
+.badge-warn { background: rgba(245,158,11,0.15); color: var(–warn); }
+.badge-danger { background: rgba(239,68,68,0.15); color: var(–danger); }
+.badge-pending { background: rgba(100,116,139,0.15); color: var(–muted); }
+
+/* ALERT BANNER */
+.alert {
+border-radius: 12px;
+padding: 14px 16px;
+margin-bottom: 16px;
+display: flex; gap: 12px; align-items: flex-start;
+font-size: 0.85rem;
+}
+.alert-warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(–warn); }
+.alert-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: var(–danger); }
+.alert-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: var(–success); }
+.alert-info { background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.25); color: var(–accent2); }
+.alert-icon { font-size: 1.1rem; flex-shrink: 0; }
+.alert-body { flex: 1; }
+.alert-title { font-weight: 700; margin-bottom: 2px; }
+.alert-msg { opacity: 0.85; font-size: 0.8rem; }
+
+/* PROGRESS */
+.progress-bar { height: 6px; background: var(–border); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.progress-green { background: linear-gradient(90deg, var(–accent), var(–success)); }
+.progress-yellow { background: linear-gradient(90deg, var(–warn), #f97316); }
+.progress-red { background: linear-gradient(90deg, var(–danger), #dc2626); }
+
+/* SECTION TITLE */
+.section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; }
+.section-sub { font-size: 0.85rem; color: var(–muted); margin-bottom: 20px; }
+
+/* TRAINING CARD */
+.training-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 18px;
+margin-bottom: 14px;
+position: relative;
+overflow: hidden;
+}
+.training-card::before {
+content: ‘’;
+position: absolute; left: 0; top: 0; bottom: 0;
+width: 3px;
+background: linear-gradient(180deg, var(–accent), var(–accent2));
+border-radius: 3px 0 0 3px;
+}
+.training-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+.training-meta { font-size: 0.75rem; color: var(–muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.training-meta span { display: flex; align-items: center; gap: 4px; }
+.training-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* MODAL */
+.modal-overlay {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.7);
+z-index: 500;
+display: none; align-items: flex-end;
+backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 24px 24px 0 0;
+padding: 24px 20px;
+width: 100%; max-width: 640px; margin: 0 auto;
+max-height: 90vh; overflow-y: auto;
+animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 40px; height: 4px; background: var(–border); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; }
+
+/* SIGNATURE PAD */
+#signatureCanvas {
+width: 100%;
+height: 160px;
+background: var(–surface2);
+border: 2px dashed var(–border);
+border-radius: 12px;
+touch-action: none;
+cursor: crosshair;
+display: block;
+}
+#signatureCanvas.has-sig { border-color: var(–accent); border-style: solid; }
+
+/* QUIZ */
+.quiz-question {
+background: var(–card);
+border: 1.5px solid var(–border);
+border-radius: 14px;
+padding: 18px;
+margin-bottom: 16px;
+}
+.quiz-q-text { font-weight: 600; margin-bottom: 14px; line-height: 1.5; }
+.quiz-option {
+display: flex; align-items: center; gap: 12px;
+padding: 12px 14px;
+border: 1.5px solid var(–border);
+border-radius: 10px;
+margin-bottom: 8px;
+cursor: pointer;
+transition: all 0.2s;
+background: var(–surface2);
+}
+.quiz-option:hover { border-color: var(–accent); }
+.quiz-option.selected { border-color: var(–accent); background: rgba(0,212,170,0.08); }
+.quiz-option.correct { border-color: var(–success); background: rgba(34,197,94,0.1); }
+.quiz-option.wrong { border-color: var(–danger); background: rgba(239,68,68,0.1); }
+.quiz-radio {
+width: 20px; height: 20px;
+border: 2px solid var(–border);
+border-radius: 50%;
+flex-shrink: 0;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.2s;
+}
+.quiz-option.selected .quiz-radio { border-color: var(–accent); background: var(–accent); }
+.quiz-option.correct .quiz-radio { border-color: var(–success); background: var(–success); }
+.quiz-option.wrong .quiz-radio { border-color: var(–danger); background: var(–danger); }
+.quiz-radio-dot { width: 8px; height: 8px; background: #000; border-radius: 50%; opacity: 0; transition: opacity 0.2s; }
+.quiz-option.selected .quiz-radio-dot,
+.quiz-option.correct .quiz-radio-dot,
+.quiz-option.wrong .quiz-radio-dot { opacity: 1; }
+
+/* CONTENT VIEWER */
+.content-block { margin-bottom: 20px; }
+.content-block img { width: 100%; border-radius: 12px; }
+.content-block .yt-embed { border-radius: 12px; overflow: hidden; position: relative; padding-bottom: 56.25%; height: 0; }
+.content-block .yt-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+.content-text { font-size: 0.95rem; line-height: 1.8; color: #cbd5e1; }
+
+/* STEP INDICATOR */
+.steps { display: flex; gap: 0; margin-bottom: 24px; }
+.step {
+flex: 1; height: 4px;
+background: var(–border);
+border-radius: 2px;
+margin: 0 2px;
+transition: background 0.3s;
+}
+.step.done { background: var(–accent); }
+.step.active { background: var(–accent2); }
+
+/* RESULT */
+.result-circle {
+width: 120px; height: 120px;
+border-radius: 50%;
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+margin: 0 auto 20px;
+font-family: ‘JetBrains Mono’, monospace;
+}
+.result-circle.pass { background: rgba(34,197,94,0.1); border: 3px solid var(–success); }
+.result-circle.fail { background: rgba(239,68,68,0.1); border: 3px solid var(–danger); }
+.result-pct { font-size: 2.2rem; font-weight: 800; line-height: 1; }
+.result-label { font-size: 0.7rem; margin-top: 2px; }
+.result-circle.pass .result-pct { color: var(–success); }
+.result-circle.fail .result-pct { color: var(–danger); }
+
+/* CONSTANCIA */
+#constanciaContainer {
+background: white;
+color: #1a1a2e;
+border-radius: 16px;
+padding: 24px;
+margin: 16px 0;
+text-align: center;
+font-family: ‘Sora’, sans-serif;
+}
+.constancia-logo { font-size: 1.5rem; font-weight: 800; color: #00d4aa; letter-spacing: -1px; margin-bottom: 4px; }
+.constancia-title { font-size: 1rem; font-weight: 700; color: #1a1a2e; margin: 12px 0 4px; }
+.constancia-name { font-size: 1.4rem; font-weight: 800; color: #0a0e1a; margin: 8px 0; }
+.constancia-text { font-size: 0.8rem; color: #64748b; line-height: 1.6; }
+.constancia-score { font-size: 2rem; font-weight: 800; color: #22c55e; }
+.constancia-divider { height: 1px; background: #e2e8f0; margin: 14px 0; }
+.constancia-sig-area { display: flex; justify-content: center; margin: 12px 0; }
+.constancia-sig-area img { max-height: 60px; }
+.constancia-footer { font-size: 0.7rem; color: #94a3b8; margin-top: 8px; }
+
+/* NAV BOTTOM */
+.bottom-nav {
+position: fixed; bottom: 0; left: 0; right: 0;
+background: var(–surface);
+border-top: 1px solid var(–border);
+display: flex;
+z-index: 100;
+padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+flex: 1; display: flex; flex-direction: column; align-items: center;
+padding: 10px 4px;
+cursor: pointer;
+color: var(–muted);
+font-size: 0.7rem; gap: 3px;
+border: none; background: none;
+font-family: ‘Sora’, sans-serif;
+transition: color 0.2s;
+}
+.nav-item.active { color: var(–accent); }
+.nav-icon { font-size: 1.3rem; }
+.nav-label { font-size: 0.65rem; font-weight: 600; }
+
+/* MISC */
+.divider { height: 1px; background: var(–border); margin: 20px 0; }
+.text-muted { color: var(–muted); }
+.text-accent { color: var(–accent); }
+.text-success { color: var(–success); }
+.text-danger { color: var(–danger); }
+.text-warn { color: var(–warn); }
+.mono { font-family: ‘JetBrains Mono’, monospace; }
+.fw-bold { font-weight: 700; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.gap-8 { display: flex; gap: 8px; }
+.gap-12 { display: flex; gap: 12px; }
+.flex-center { display: flex; align-items: center; }
+.space-bottom { padding-bottom: 100px; }
+.hidden { display: none !important; }
+
+/* FILE UPLOAD AREA */
+.upload-area {
+border: 2px dashed var(–border);
+border-radius: 14px;
+padding: 32px 20px;
+text-align: center;
+cursor: pointer;
+transition: border-color 0.2s;
+background: var(–surface2);
+}
+.upload-area:hover, .upload-area.dragover { border-color: var(–accent); background: rgba(0,212,170,0.05); }
+.upload-icon { font-size: 2.5rem; margin-bottom: 8px; }
+.upload-text { color: var(–muted); font-size: 0.85rem; }
+.upload-text strong { color: var(–accent); }
+
+/* CONTENT BUILDER */
+.content-item-card {
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px;
+margin-bottom: 10px;
+display: flex; gap: 12px; align-items: flex-start;
+}
+.content-item-type {
+background: var(–border);
+border-radius: 8px;
+padding: 6px 10px;
+font-size: 0.75rem;
+font-weight: 700;
+color: var(–accent);
+font-family: ‘JetBrains Mono’, monospace;
+flex-shrink: 0;
+}
+.content-item-preview { flex: 1; font-size: 0.85rem; color: var(–muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.content-item-del { background: none; border: none; color: var(–danger); cursor: pointer; font-size: 1.1rem; padding: 2px; }
+
+/* SCHEDULE */
+.month-row {
+display: flex; align-items: center; gap: 12px;
+padding: 12px 0;
+border-bottom: 1px solid var(–border);
+}
+.month-name { width: 80px; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; }
+.month-caps { flex: 1; font-size: 0.8rem; color: var(–muted); }
+.month-status { font-size: 0.75rem; }
+</style>
+
+</head>
+<body>
+
+<!-- LOADER -->
+
+<div id="loader">
+  <div class="loader-logo">Capacita<span style="color:#0ea5e9">SH</span></div>
+  <div class="loader-sub">Seguridad & Higiene</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<!-- ==================== SCREEN: SELECTOR (Admin / Empleado) ==================== -->
+
+<div id="screenSelector" class="screen">
+  <div class="content" style="display:flex;flex-direction:column;justify-content:center;min-height:100vh;">
+    <div style="text-align:center;margin-bottom:40px;">
+      <div style="font-size:3rem;margin-bottom:8px;">🦺</div>
+      <div style="font-size:2rem;font-weight:800;letter-spacing:-1px;">Capacita<span style="color:var(--accent2)">SH</span></div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:4px;">Sistema de Gestión de Capacitaciones</div>
+    </div>
+    <div class="card" style="margin-bottom:12px;cursor:pointer;" onclick="goToAdmin()">
+      <div class="card-header" style="margin-bottom:0;">
+        <div class="card-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);">👔</div>
+        <div>
+          <div class="card-title">Panel Administrador</div>
+          <div class="card-sub">Gestionar capacitaciones y empleados</div>
+        </div>
+        <div style="margin-left:auto;color:var(--muted);font-size:1.2rem;">›</div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer;" onclick="goToEmployee()">
+      <div class="card-header" style="margin-bottom:0;">
+        <div class="card-icon">👷</div>
+        <div>
+          <div class="card-title">Soy Empleado</div>
+          <div class="card-sub">Acceder a mi capacitación</div>
+        </div>
+        <div style="margin-left:auto;color:var(--muted);font-size:1.2rem;">›</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:24px;color:var(--muted);font-size:0.75rem;">
+      Compatible con iOS y Android · Sin instalación
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN: ADMIN LOGIN ==================== -->
+
+<div id="screenAdminLogin" class="screen">
+  <div class="app-header">
+    <button class="btn-back" onclick="showScreen('screenSelector')">←</button>
+    <div class="app-logo">Capacita<span>SH</span></div>
+    <div class="header-badge">ADMIN</div>
+  </div>
+  <div class="content" style="padding-top:40px;">
+    <div class="section-title">Acceso Administrador</div>
+    <div class="section-sub">Ingresá tu contraseña para continuar</div>
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input type="password" class="form-input" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="adminLogin()">Ingresar →</button>
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <div style="color:var(--muted);font-size:0.78rem;">Contraseña por defecto: <span class="mono text-accent">admin123</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN: ADMIN PANEL ==================== -->
+
+<div id="screenAdmin" class="screen">
+  <div class="app-header">
+    <div class="app-logo">Capacita<span>SH</span></div>
+    <div class="header-badge">ADMIN</div>
+  </div>
+
+  <div class="content-wide space-bottom">
+    <div style="padding:20px 20px 0;">
+      <!-- TAB BAR -->
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="adminTab('dashboard',this)">Dashboard</button>
+        <button class="tab-btn" onclick="adminTab('capacitaciones',this)">Capacitaciones</button>
+        <button class="tab-btn" onclick="adminTab('empleados',this)">Empleados</button>
+        <button class="tab-btn" onclick="adminTab('plan',this)">Plan Anual</button>
+      </div>
+    </div>
+
+```
+<!-- TAB: DASHBOARD -->
+<div id="tabDashboard" class="tab-content" style="padding:0 20px;">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num" id="statEmpleados">0</div>
+      <div class="stat-label">Empleados</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statCapacitaciones">0</div>
+      <div class="stat-label">Capacitaciones</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num text-success" id="statCompletados">0</div>
+      <div class="stat-label">Completadas</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num text-danger" id="statPendientes">0</div>
+      <div class="stat-label">Pendientes</div>
+    </div>
+  </div>
+
+  <!-- ALERTAS -->
+  <div id="alertsContainer"></div>
+
+  <!-- RESULTADOS RECIENTES -->
+  <div class="section-title">Actividad Reciente</div>
+  <div id="recentActivity" class="card" style="padding:12px 16px;">
+    <div style="color:var(--muted);text-align:center;padding:20px 0;font-size:0.85rem;">Sin actividad registrada</div>
+  </div>
+</div>
+
+<!-- TAB: CAPACITACIONES -->
+<div id="tabCapacitaciones" class="tab-content hidden" style="padding:0 20px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div class="section-title" style="margin-bottom:0;">Capacitaciones</div>
+    <button class="btn btn-primary btn-sm" onclick="openModalNuevaCap()">+ Nueva</button>
+  </div>
+  <div id="capListAdmin"></div>
+</div>
+
+<!-- TAB: EMPLEADOS -->
+<div id="tabEmpleados" class="tab-content hidden" style="padding:0 20px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div class="section-title" style="margin-bottom:0;">Empleados</div>
+    <button class="btn btn-primary btn-sm" onclick="openModalEmpleado()">+ Agregar</button>
+  </div>
+  <div class="upload-area" onclick="document.getElementById('excelInput').click()" style="margin-bottom:16px;" id="uploadArea">
+    <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="importExcel(this)">
+    <div class="upload-icon">📊</div>
+    <div class="upload-text">Tocá para importar desde <strong>Excel</strong></div>
+    <div style="font-size:0.75rem;color:var(--muted);margin-top:6px;">Columnas: Nombre, Apellido, DNI, Legajo, Teléfono</div>
+  </div>
+  <div id="empListAdmin"></div>
+</div>
+
+<!-- TAB: PLAN ANUAL -->
+<div id="tabPlan" class="tab-content hidden" style="padding:0 20px;">
+  <div class="section-title">Plan Anual de Capacitaciones</div>
+  <div class="section-sub">24 sesiones distribuidas en 12 meses</div>
+  <div class="card" style="padding:12px 16px;">
+    <div id="planAnual"></div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- BOTTOM NAV ADMIN -->
+
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="adminTab('dashboard',this);setNavActive(this)">
+      <div class="nav-icon">📊</div><div class="nav-label">Dashboard</div>
+    </button>
+    <button class="nav-item" onclick="adminTab('capacitaciones',this);setNavActive(this)">
+      <div class="nav-icon">📋</div><div class="nav-label">Capacitac.</div>
+    </button>
+    <button class="nav-item" onclick="adminTab('empleados',this);setNavActive(this)">
+      <div class="nav-icon">👥</div><div class="nav-label">Empleados</div>
+    </button>
+    <button class="nav-item" onclick="adminTab('plan',this);setNavActive(this)">
+      <div class="nav-icon">📅</div><div class="nav-label">Plan</div>
+    </button>
+    <button class="nav-item" onclick="showScreen('screenSelector')">
+      <div class="nav-icon">🚪</div><div class="nav-label">Salir</div>
+    </button>
+  </div>
+</div>
+
+<!-- ==================== SCREEN: EMPLOYEE LOGIN ==================== -->
+
+<div id="screenEmployeeLogin" class="screen">
+  <div class="app-header">
+    <button class="btn-back" onclick="showScreen('screenSelector')">←</button>
+    <div class="app-logo">Capacita<span>SH</span></div>
+    <div class="header-badge">EMPLEADO</div>
+  </div>
+  <div class="content" style="padding-top:30px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:2.5rem;margin-bottom:8px;">👷</div>
+      <div class="section-title">Bienvenido</div>
+      <div class="section-sub">Ingresá tus datos para acceder a tu capacitación</div>
+    </div>
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">DNI (sin puntos)</label>
+        <input type="number" class="form-input" id="empDni" placeholder="Ej: 28456789" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apellido</label>
+        <input type="text" class="form-input" id="empApellido" placeholder="Ej: González" autocapitalize="words">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="employeeLogin()" style="margin-top:8px;">Ingresar →</button>
+    </div>
+    <div id="loginError" class="alert alert-danger hidden" style="margin-top:12px;">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-body">
+        <div class="alert-title">Datos incorrectos</div>
+        <div class="alert-msg">Verificá tu DNI y apellido, o consultá con tu supervisor.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN: EMPLOYEE DASHBOARD ==================== -->
+
+<div id="screenEmployeeDash" class="screen">
+  <div class="app-header">
+    <div class="app-logo">Capacita<span>SH</span></div>
+    <div class="header-badge" id="empHeaderBadge">EMPLEADO</div>
+  </div>
+  <div class="content space-bottom">
+    <div class="card" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="emp-avatar" style="width:52px;height:52px;font-size:1.2rem;" id="empAvatarDash">JD</div>
+        <div>
+          <div style="font-weight:800;font-size:1rem;" id="empNameDash">Juan Díaz</div>
+          <div style="font-size:0.78rem;color:var(--muted);">DNI: <span id="empDniDash">-</span> · Legajo: <span id="empLegajoDash">-</span></div>
+        </div>
+      </div>
+    </div>
+
+```
+<div class="section-title">Mis Capacitaciones</div>
+<div class="section-sub">Completá cada módulo para obtener tu constancia</div>
+<div id="empCapList"></div>
+
+<button class="btn btn-secondary btn-full" onclick="showScreen('screenSelector')" style="margin-top:8px;">Cerrar sesión</button>
+```
+
+  </div>
+</div>
+
+<!-- ==================== SCREEN: TRAINING VIEWER ==================== -->
+
+<div id="screenTraining" class="screen">
+  <div class="app-header">
+    <button class="btn-back" id="trainingBackBtn" onclick="showScreen('screenEmployeeDash')">←</button>
+    <div class="app-logo" style="font-size:0.9rem;" id="trainingHeaderTitle">Capacitación</div>
+  </div>
+  <div class="content space-bottom" id="trainingContent">
+  </div>
+</div>
+
+<!-- ==================== SCREEN: CONSTANCIA ==================== -->
+
+<div id="screenConstancia" class="screen">
+  <div class="app-header">
+    <button class="btn-back" onclick="showScreen('screenEmployeeDash')">←</button>
+    <div class="app-logo">Constancia</div>
+  </div>
+  <div class="content space-bottom">
+    <div id="constanciaContainer"></div>
+    <button class="btn btn-whatsapp btn-full" onclick="shareWhatsApp()" style="margin-bottom:10px;">
+      <span>📲</span> Compartir por WhatsApp
+    </button>
+    <button class="btn btn-secondary btn-full" onclick="showScreen('screenEmployeeDash')">Volver al inicio</button>
+  </div>
+</div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Modal: Nueva Capacitación -->
+
+<div class="modal-overlay" id="modalNuevaCap">
+  <div class="modal" style="max-height:95vh;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nueva Capacitación</div>
+    <div class="form-group">
+      <label class="form-label">Título</label>
+      <input type="text" class="form-input" id="ncTitulo" placeholder="Ej: Uso de EPP">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-textarea" id="ncDescripcion" placeholder="Descripción breve..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha de vencimiento (próxima realización)</label>
+      <input type="date" class="form-input" id="ncFechaVenc">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Frecuencia</label>
+      <select class="form-select" id="ncFrecuencia">
+        <option value="mensual">Mensual</option>
+        <option value="bimestral">Bimestral</option>
+        <option value="trimestral">Trimestral</option>
+        <option value="semestral">Semestral</option>
+        <option value="anual" selected>Anual</option>
+      </select>
+    </div>
+
+```
+<div class="divider"></div>
+<div style="font-weight:700;margin-bottom:12px;">📄 Contenido</div>
+<div id="contentItemsList"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+  <button class="btn btn-secondary btn-sm" onclick="addContentItem('texto')">+ Texto</button>
+  <button class="btn btn-secondary btn-sm" onclick="addContentItem('youtube')">+ YouTube</button>
+  <button class="btn btn-secondary btn-sm" onclick="addContentItem('imagen')">+ Imagen URL</button>
+</div>
+
+<div class="divider"></div>
+<div style="font-weight:700;margin-bottom:12px;">❓ Preguntas de Evaluación</div>
+<div id="quizItemsList"></div>
+<button class="btn btn-secondary btn-sm" onclick="addQuizItem()" style="margin-bottom:16px;">+ Agregar Pregunta</button>
+
+<button class="btn btn-primary btn-full" onclick="saveCapacitacion()" style="margin-bottom:8px;">Guardar Capacitación</button>
+<button class="btn btn-secondary btn-full" onclick="closeModal('modalNuevaCap')">Cancelar</button>
+```
+
+  </div>
+</div>
+
+<!-- Modal: Nuevo Empleado -->
+
+<div class="modal-overlay" id="modalEmpleado">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Agregar Empleado</div>
+    <div class="form-group">
+      <label class="form-label">Nombre</label>
+      <input type="text" class="form-input" id="meNombre" autocapitalize="words">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Apellido</label>
+      <input type="text" class="form-input" id="meApellido" autocapitalize="words">
+    </div>
+    <div class="form-group">
+      <label class="form-label">DNI</label>
+      <input type="number" class="form-input" id="meDni" inputmode="numeric">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Legajo</label>
+      <input type="text" class="form-input" id="meLegajo">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Teléfono (para WhatsApp)</label>
+      <input type="tel" class="form-input" id="meTelefono" placeholder="Ej: 5491123456789" inputmode="tel">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="saveEmpleado()" style="margin-bottom:8px;">Guardar</button>
+    <button class="btn btn-secondary btn-full" onclick="closeModal('modalEmpleado')">Cancelar</button>
+  </div>
+</div>
+
+<!-- Modal: Enviar por WhatsApp -->
+
+<div class="modal-overlay" id="modalWhatsApp">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📲 Enviar por WhatsApp</div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Seleccioná a quién enviarle este link de capacitación:</div>
+      <div id="waEmpList"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mensaje personalizado (opcional)</label>
+      <textarea class="form-textarea" id="waMessage" style="min-height:80px;">Hola! Te enviamos el link para completar tu capacitación obligatoria de seguridad e higiene. Por favor completala antes de la fecha indicada. 👷‍♂️</textarea>
+    </div>
+    <button class="btn btn-whatsapp btn-full" onclick="sendWhatsApp()" style="margin-bottom:8px;">Enviar por WhatsApp</button>
+    <button class="btn btn-secondary btn-full" onclick="closeModal('modalWhatsApp')">Cancelar</button>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let appState = {
+  empleados: [],
+  capacitaciones: [],
+  resultados: [],
+  currentEmployee: null,
+  currentCap: null,
+  contentItems: [],
+  quizItems: [],
+  currentWaCap: null,
+  selectedWaEmps: []
+};
+
+// Demo data
+function initDemoData() {
+  if (appState.empleados.length === 0) {
+    appState.empleados = [
+      { id: 'e1', nombre: 'Carlos', apellido: 'García', dni: '25678901', legajo: 'L001', telefono: '5491123456789' },
+      { id: 'e2', nombre: 'María', apellido: 'López', dni: '30123456', legajo: 'L002', telefono: '5491198765432' },
+      { id: 'e3', nombre: 'Rodrigo', apellido: 'Martínez', dni: '35890123', legajo: 'L003', telefono: '5491187654321' },
+    ];
+  }
+  if (appState.capacitaciones.length === 0) {
+    appState.capacitaciones = [
+      {
+        id: 'c1',
+        titulo: 'Uso correcto de EPP',
+        descripcion: 'Elementos de Protección Personal: selección, uso y mantenimiento.',
+        fechaVenc: '2026-06-30',
+        frecuencia: 'semestral',
+        contenido: [
+          { type: 'texto', value: '## Elementos de Protección Personal\n\nLos EPP son el último recurso de protección entre el trabajador y el riesgo. Deben usarse correctamente en todo momento dentro de la obra.\n\n**Tipos principales:**\n- Casco de seguridad\n- Botines con punta de acero\n- Guantes de protección\n- Gafas de seguridad\n- Protector auditivo\n\nEl equipo debe inspeccionarse antes de cada uso y reemplazarse cuando presenta daños.' },
+          { type: 'youtube', value: 'dQw4w9WgXcQ' }
+        ],
+        preguntas: [
+          { pregunta: '¿Cuál es el objetivo principal de los EPP?', opciones: ['Cumplir con un requisito formal','Proteger al trabajador del riesgo residual','Son opcionales en obra','Reemplazar las medidas colectivas'], correcta: 1 },
+          { pregunta: '¿Cuándo se debe inspeccionar el EPP?', opciones: ['Una vez por semana','Solo cuando se ve dañado','Antes de cada uso','Al final de la jornada'], correcta: 2 },
+          { pregunta: '¿Qué hacer si el EPP presenta daños?', opciones: ['Seguir usándolo con cuidado','Repararlo con cinta','Reemplazarlo inmediatamente','Consultar al supervisor en 3 días'], correcta: 2 },
+          { pregunta: '¿Cuál NO es un EPP básico en obra?', opciones: ['Casco','Chaleco de fuerza','Botines con punta de acero','Guantes'], correcta: 1 },
+          { pregunta: 'Los EPP son considerados:', opciones: ['El primer recurso de protección','Un complemento opcional','El último recurso de protección','Exclusivos para supervisores'], correcta: 2 }
+        ]
+      }
+    ];
+  }
+  saveState();
+}
+
+function saveState() {
+  try { localStorage.setItem('capacitaSH', JSON.stringify(appState)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('capacitaSH');
+    if (s) { appState = { ...appState, ...JSON.parse(s) }; }
+  } catch(e) {}
+  initDemoData();
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goToAdmin() { showScreen('screenAdminLogin'); }
+function goToEmployee() { showScreen('screenEmployeeLogin'); }
+
+// ============================================================
+// ADMIN
+// ============================================================
+function adminLogin() {
+  const pass = document.getElementById('adminPass').value;
+  if (pass === 'admin123') {
+    showScreen('screenAdmin');
+    renderAdminDashboard();
+    renderCapListAdmin();
+    renderEmpListAdmin();
+    renderPlanAnual();
+  } else {
+    document.getElementById('adminPass').style.borderColor = 'var(--danger)';
+    setTimeout(() => document.getElementById('adminPass').style.borderColor = '', 1500);
+  }
+}
+
+function adminTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+function setNavActive(btn) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function renderAdminDashboard() {
+  document.getElementById('statEmpleados').textContent = appState.empleados.length;
+  document.getElementById('statCapacitaciones').textContent = appState.capacitaciones.length;
+  const completados = appState.resultados.filter(r => r.aprobado).length;
+  const pendientes = (appState.empleados.length * appState.capacitaciones.length) - completados;
+  document.getElementById('statCompletados').textContent = completados;
+  document.getElementById('statPendientes').textContent = Math.max(0, pendientes);
+
+  // Alertas
+  const alertsEl = document.getElementById('alertsContainer');
+  alertsEl.innerHTML = '';
+  const hoy = new Date();
+
+  appState.capacitaciones.forEach(cap => {
+    if (!cap.fechaVenc) return;
+    const venc = new Date(cap.fechaVenc);
+    const dias = Math.ceil((venc - hoy) / (1000 * 60 * 60 * 24));
+    if (dias <= 0) {
+      alertsEl.innerHTML += `<div class="alert alert-danger"><div class="alert-icon">🚨</div><div class="alert-body"><div class="alert-title">VENCIDA: ${cap.titulo}</div><div class="alert-msg">La capacitación venció el ${formatDate(cap.fechaVenc)}. Requiere acción inmediata.</div></div></div>`;
+    } else if (dias <= 30) {
+      alertsEl.innerHTML += `<div class="alert alert-warn"><div class="alert-icon">⚠️</div><div class="alert-body"><div class="alert-title">Próxima a vencer: ${cap.titulo}</div><div class="alert-msg">Vence en ${dias} días (${formatDate(cap.fechaVenc)}). Hay empleados sin completar.</div></div></div>`;
+    }
+  });
+
+  // Empleados que no completaron
+  const noCompletaron = [];
+  appState.empleados.forEach(emp => {
+    appState.capacitaciones.forEach(cap => {
+      const done = appState.resultados.find(r => r.empId === emp.id && r.capId === cap.id && r.aprobado);
+      if (!done) noCompletaron.push({ emp, cap });
+    });
+  });
+  if (noCompletaron.length > 0 && appState.capacitaciones.length > 0) {
+    alertsEl.innerHTML += `<div class="alert alert-info"><div class="alert-icon">📋</div><div class="alert-body"><div class="alert-title">${noCompletaron.length} capacitación/es pendiente/s</div><div class="alert-msg">${noCompletaron.slice(0,3).map(x => `${x.emp.nombre} ${x.emp.apellido}: ${x.cap.titulo}`).join(' · ')}</div></div></div>`;
+  }
+
+  // Actividad reciente
+  const recentEl = document.getElementById('recentActivity');
+  const recent = [...appState.resultados].sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).slice(0,5);
+  if (recent.length === 0) {
+    recentEl.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px 0;font-size:0.85rem;">Sin actividad registrada</div>';
+  } else {
+    recentEl.innerHTML = recent.map(r => {
+      const emp = appState.empleados.find(e => e.id === r.empId);
+      const cap = appState.capacitaciones.find(c => c.id === r.capId);
+      return `<div class="emp-row">
+        <div class="emp-avatar">${emp ? emp.nombre[0]+emp.apellido[0] : '?'}</div>
+        <div style="flex:1">
+          <div class="emp-name">${emp ? emp.nombre+' '+emp.apellido : 'Desconocido'}</div>
+          <div class="emp-info">${cap ? cap.titulo : '-'} · ${formatDate(r.fecha)}</div>
+        </div>
+        <div class="badge ${r.aprobado ? 'badge-ok' : 'badge-danger'}">${r.aprobado ? 'APROBÓ' : 'REPROBÓ'}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function renderCapListAdmin() {
+  const el = document.getElementById('capListAdmin');
+  if (appState.capacitaciones.length === 0) {
+    el.innerHTML = '<div class="card" style="text-align:center;color:var(--muted);padding:30px;">No hay capacitaciones creadas.<br>Tocá "+ Nueva" para crear una.</div>';
+    return;
+  }
+  el.innerHTML = appState.capacitaciones.map(cap => {
+    const completados = appState.resultados.filter(r => r.capId === cap.id && r.aprobado).length;
+    const total = appState.empleados.length;
+    const pct = total > 0 ? Math.round(completados/total*100) : 0;
+    return `<div class="training-card">
+      <div class="training-title">${cap.titulo}</div>
+      <div class="training-meta">
+        <span>📅 Vence: ${formatDate(cap.fechaVenc)}</span>
+        <span>🔄 ${cap.frecuencia}</span>
+        <span>✅ ${completados}/${total}</span>
+      </div>
+      <div class="progress-bar" style="margin-bottom:12px;">
+        <div class="progress-fill ${pct>=80?'progress-green':pct>=50?'progress-yellow':'progress-red'}" style="width:${pct}%"></div>
+      </div>
+      <div class="training-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openModalWhatsApp('${cap.id}')">📲 WA</button>
+        <button class="btn btn-secondary btn-sm" onclick="getLinkCap('${cap.id}')">🔗 Link</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCap('${cap.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderEmpListAdmin() {
+  const el = document.getElementById('empListAdmin');
+  if (appState.empleados.length === 0) {
+    el.innerHTML = '<div class="card" style="text-align:center;color:var(--muted);padding:30px;">No hay empleados cargados.<br>Importá desde Excel o agregá manualmente.</div>';
+    return;
+  }
+  el.innerHTML = `<div class="card" style="padding:12px 16px;">` + appState.empleados.map(emp => {
+    const completadas = appState.resultados.filter(r => r.empId === emp.id && r.aprobado).length;
+    const total = appState.capacitaciones.length;
+    let badge = 'badge-pending';
+    let label = 'Sin caps.';
+    if (total > 0) {
+      const pct = completadas/total;
+      if (pct >= 1) { badge = 'badge-ok'; label = 'COMPLETO'; }
+      else if (pct > 0) { badge = 'badge-warn'; label = `${completadas}/${total}`; }
+      else { badge = 'badge-danger'; label = 'PENDIENTE'; }
+    }
+    return `<div class="emp-row">
+      <div class="emp-avatar">${emp.nombre[0]}${emp.apellido[0]}</div>
+      <div style="flex:1">
+        <div class="emp-name">${emp.nombre} ${emp.apellido}</div>
+        <div class="emp-info">DNI: ${emp.dni} · Leg: ${emp.legajo}</div>
+        ${emp.telefono ? `<div class="emp-info">📱 ${emp.telefono}</div>` : ''}
+      </div>
+      <div class="emp-status">
+        <div class="badge ${badge}">${label}</div>
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function renderPlanAnual() {
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const hoy = new Date();
+  const mesActual = hoy.getMonth();
+  const el = document.getElementById('planAnual');
+
+  // Distribute caps across months
+  const plan = {};
+  meses.forEach((m, i) => { plan[i] = []; });
+  appState.capacitaciones.forEach((cap, idx) => {
+    const mes = idx % 12;
+    plan[mes].push(cap);
+  });
+
+  el.innerHTML = meses.map((mes, i) => {
+    const caps = plan[i];
+    const esMesActual = i === mesActual;
+    return `<div class="month-row" style="${esMesActual ? 'background:rgba(0,212,170,0.05);margin:0 -16px;padding-left:16px;padding-right:16px;' : ''}">
+      <div class="month-name" style="${esMesActual ? 'color:var(--accent);font-weight:800;' : ''}">${mes}${esMesActual ? ' ←' : ''}</div>
+      <div class="month-caps">${caps.length > 0 ? caps.map(c => c.titulo).join(', ') : '<span style="opacity:0.4">Sin asignar</span>'}</div>
+      <div class="month-status">${i < mesActual ? '<span class="badge badge-ok">✓</span>' : esMesActual ? '<span class="badge badge-warn">HOY</span>' : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// CAPACITACIONES CRUD
+// ============================================================
+let editingCapId = null;
+
+function openModalNuevaCap() {
+  editingCapId = null;
+  appState.contentItems = [];
+  appState.quizItems = [];
+  document.getElementById('ncTitulo').value = '';
+  document.getElementById('ncDescripcion').value = '';
+  document.getElementById('ncFechaVenc').value = '';
+  document.getElementById('ncFrecuencia').value = 'anual';
+  renderContentItems();
+  renderQuizItems();
+  openModal('modalNuevaCap');
+}
+
+function addContentItem(type) {
+  if (type === 'texto') {
+    const val = prompt('Ingresá el texto del contenido:');
+    if (val) appState.contentItems.push({ type: 'texto', value: val });
+  } else if (type === 'youtube') {
+    const url = prompt('Pegá el link de YouTube (o el ID del video):');
+    if (url) {
+      const id = extractYouTubeId(url) || url;
+      appState.contentItems.push({ type: 'youtube', value: id });
+    }
+  } else if (type === 'imagen') {
+    const url = prompt('Pegá la URL de la imagen:');
+    if (url) appState.contentItems.push({ type: 'imagen', value: url });
+  }
+  renderContentItems();
+}
+
+function extractYouTubeId(url) {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+  return m ? m[1] : null;
+}
+
+function renderContentItems() {
+  const el = document.getElementById('contentItemsList');
+  el.innerHTML = appState.contentItems.map((item, i) => `
+    <div class="content-item-card">
+      <div class="content-item-type">${item.type.toUpperCase()}</div>
+      <div class="content-item-preview">${item.value.substring(0, 60)}</div>
+      <button class="content-item-del" onclick="removeContentItem(${i})">✕</button>
+    </div>
+  `).join('') || '<div style="color:var(--muted);font-size:0.85rem;margin-bottom:12px;">Sin contenido agregado aún.</div>';
+}
+
+function removeContentItem(i) { appState.contentItems.splice(i, 1); renderContentItems(); }
+
+function addQuizItem() {
+  const preg = prompt('Ingresá la pregunta:');
+  if (!preg) return;
+  const opciones = [];
+  for (let i = 0; i < 4; i++) {
+    const op = prompt(`Opción ${i + 1}:`);
+    if (!op) return;
+    opciones.push(op);
+  }
+  const correcta = parseInt(prompt('¿Cuál es la correcta? (1, 2, 3 o 4):')) - 1;
+  if (isNaN(correcta) || correcta < 0 || correcta > 3) return;
+  appState.quizItems.push({ pregunta: preg, opciones, correcta });
+  renderQuizItems();
+}
+
+function renderQuizItems() {
+  const el = document.getElementById('quizItemsList');
+  el.innerHTML = appState.quizItems.map((q, i) => `
+    <div class="content-item-card">
+      <div class="content-item-type">P${i+1}</div>
+      <div class="content-item-preview">${q.pregunta}</div>
+      <button class="content-item-del" onclick="removeQuizItem(${i})">✕</button>
+    </div>
+  `).join('') || '<div style="color:var(--muted);font-size:0.85rem;margin-bottom:12px;">Sin preguntas agregadas aún.</div>';
+}
+
+function removeQuizItem(i) { appState.quizItems.splice(i, 1); renderQuizItems(); }
+
+function saveCapacitacion() {
+  const titulo = document.getElementById('ncTitulo').value.trim();
+  if (!titulo) { alert('Ingresá un título.'); return; }
+  const cap = {
+    id: editingCapId || 'c' + Date.now(),
+    titulo,
+    descripcion: document.getElementById('ncDescripcion').value.trim(),
+    fechaVenc: document.getElementById('ncFechaVenc').value,
+    frecuencia: document.getElementById('ncFrecuencia').value,
+    contenido: [...appState.contentItems],
+    preguntas: [...appState.quizItems]
+  };
+  if (editingCapId) {
+    const idx = appState.capacitaciones.findIndex(c => c.id === editingCapId);
+    appState.capacitaciones[idx] = cap;
+  } else {
+    appState.capacitaciones.push(cap);
+  }
+  saveState();
+  closeModal('modalNuevaCap');
+  renderCapListAdmin();
+  renderAdminDashboard();
+  renderPlanAnual();
+}
+
+function deleteCap(id) {
+  if (!confirm('¿Eliminar esta capacitación?')) return;
+  appState.capacitaciones = appState.capacitaciones.filter(c => c.id !== id);
+  appState.resultados = appState.resultados.filter(r => r.capId !== id);
+  saveState();
+  renderCapListAdmin();
+  renderAdminDashboard();
+}
+
+function getLinkCap(capId) {
+  const url = window.location.href.split('?')[0] + '?cap=' + capId;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => alert('Link copiado al portapapeles:\n' + url));
+  } else {
+    prompt('Copiá este link:', url);
+  }
+}
+
+// ============================================================
+// EMPLEADOS CRUD
+// ============================================================
+function openModalEmpleado() {
+  document.getElementById('meNombre').value = '';
+  document.getElementById('meApellido').value = '';
+  document.getElementById('meDni').value = '';
+  document.getElementById('meLegajo').value = '';
+  document.getElementById('meTelefono').value = '';
+  openModal('modalEmpleado');
+}
+
+function saveEmpleado() {
+  const nombre = document.getElementById('meNombre').value.trim();
+  const apellido = document.getElementById('meApellido').value.trim();
+  const dni = document.getElementById('meDni').value.trim();
+  const legajo = document.getElementById('meLegajo').value.trim();
+  const telefono = document.getElementById('meTelefono').value.trim();
+  if (!nombre || !apellido || !dni) { alert('Nombre, apellido y DNI son obligatorios.'); return; }
+  appState.empleados.push({ id: 'e' + Date.now(), nombre, apellido, dni, legajo, telefono });
+  saveState();
+  closeModal('modalEmpleado');
+  renderEmpListAdmin();
+  renderAdminDashboard();
+}
+
+function importExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'binary' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      let count = 0;
+      data.forEach(row => {
+        const nombre = (row['Nombre'] || row['nombre'] || '').toString().trim();
+        const apellido = (row['Apellido'] || row['apellido'] || '').toString().trim();
+        const dni = (row['DNI'] || row['dni'] || '').toString().trim();
+        const legajo = (row['Legajo'] || row['legajo'] || '').toString().trim();
+        const telefono = (row['Teléfono'] || row['Telefono'] || row['telefono'] || row['Tel'] || '').toString().trim();
+        if (nombre && apellido && dni) {
+          const exists = appState.empleados.find(e => e.dni === dni);
+          if (!exists) {
+            appState.empleados.push({ id: 'e' + Date.now() + Math.random(), nombre, apellido, dni, legajo, telefono });
+            count++;
+          }
+        }
+      });
+      saveState();
+      renderEmpListAdmin();
+      renderAdminDashboard();
+      alert(`✅ Importados ${count} empleados nuevos.`);
+    } catch(err) {
+      alert('Error al leer el archivo. Asegurate que sea un Excel válido con columnas: Nombre, Apellido, DNI, Legajo, Teléfono');
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+// ============================================================
+// WHATSAPP
+// ============================================================
+function openModalWhatsApp(capId) {
+  appState.currentWaCap = capId;
+  appState.selectedWaEmps = [];
+  const el = document.getElementById('waEmpList');
+  el.innerHTML = appState.empleados.map(emp => `
+    <div class="emp-row" onclick="toggleWaEmp('${emp.id}',this)" style="cursor:pointer;" data-empid="${emp.id}">
+      <div class="emp-avatar">${emp.nombre[0]}${emp.apellido[0]}</div>
+      <div style="flex:1">
+        <div class="emp-name">${emp.nombre} ${emp.apellido}</div>
+        <div class="emp-info">📱 ${emp.telefono || 'Sin teléfono'}</div>
+      </div>
+      <div class="wa-check" style="width:24px;height:24px;border:2px solid var(--border);border-radius:50%;"></div>
+    </div>
+  `).join('') || '<div style="color:var(--muted);padding:10px;">No hay empleados con teléfono cargado.</div>';
+  openModal('modalWhatsApp');
+}
+
+function toggleWaEmp(empId, row) {
+  const idx = appState.selectedWaEmps.indexOf(empId);
+  const check = row.querySelector('.wa-check');
+  if (idx === -1) {
+    appState.selectedWaEmps.push(empId);
+    check.style.background = 'var(--accent)';
+    check.style.borderColor = 'var(--accent)';
+    check.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+    check.style.display = 'flex'; check.style.alignItems = 'center'; check.style.justifyContent = 'center';
+  } else {
+    appState.selectedWaEmps.splice(idx, 1);
+    check.style.background = '';
+    check.style.borderColor = 'var(--border)';
+    check.innerHTML = '';
+  }
+}
+
+function sendWhatsApp() {
+  if (appState.selectedWaEmps.length === 0) { alert('Seleccioná al menos un empleado.'); return; }
+  const cap = appState.capacitaciones.find(c => c.id === appState.currentWaCap);
+  if (!cap) return;
+  const msg = document.getElementById('waMessage').value;
+  const baseUrl = window.location.href.split('?')[0];
+  let sent = 0;
+
+  appState.selectedWaEmps.forEach(empId => {
+    const emp = appState.empleados.find(e => e.id === empId);
+    if (!emp || !emp.telefono) return;
+    const link = `${baseUrl}?cap=${appState.currentWaCap}`;
+    const texto = encodeURIComponent(`${msg}\n\n📋 *${cap.titulo}*\n🔗 ${link}`);
+    const phone = emp.telefono.replace(/[^0-9]/g, '');
+    window.open(`https://wa.me/${phone}?text=${texto}`, '_blank');
+    sent++;
+  });
+
+  closeModal('modalWhatsApp');
+  if (sent > 0) alert(`📲 Se abrió WhatsApp para ${sent} empleado/s.`);
+}
+
+// ============================================================
+// EMPLOYEE LOGIN
+// ============================================================
+function employeeLogin() {
+  const dni = document.getElementById('empDni').value.trim();
+  const apellido = document.getElementById('empApellido').value.trim().toLowerCase();
+  const emp = appState.empleados.find(e =>
+    e.dni.toString() === dni && e.apellido.toLowerCase() === apellido
+  );
+  if (!emp) {
+    document.getElementById('loginError').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('loginError').classList.add('hidden');
+  appState.currentEmployee = emp;
+  renderEmployeeDash();
+  showScreen('screenEmployeeDash');
+}
+
+function renderEmployeeDash() {
+  const emp = appState.currentEmployee;
+  document.getElementById('empAvatarDash').textContent = emp.nombre[0] + emp.apellido[0];
+  document.getElementById('empNameDash').textContent = emp.nombre + ' ' + emp.apellido;
+  document.getElementById('empDniDash').textContent = emp.dni;
+  document.getElementById('empLegajoDash').textContent = emp.legajo || '-';
+  document.getElementById('empHeaderBadge').textContent = emp.legajo || 'EMP';
+
+  const el = document.getElementById('empCapList');
+  if (appState.capacitaciones.length === 0) {
+    el.innerHTML = '<div class="card" style="text-align:center;color:var(--muted);padding:30px;">No hay capacitaciones disponibles en este momento.</div>';
+    return;
+  }
+  el.innerHTML = appState.capacitaciones.map(cap => {
+    const resultado = appState.resultados.find(r => r.empId === emp.id && r.capId === cap.id && r.aprobado);
+    const intento = appState.resultados.filter(r => r.empId === emp.id && r.capId === cap.id).length;
+    let statusBadge, btnLabel, btnDisabled = false;
+    if (resultado) {
+      statusBadge = '<span class="badge badge-ok">✅ APROBADA</span>';
+      btnLabel = 'Ver constancia';
+    } else if (intento > 0) {
+      statusBadge = '<span class="badge badge-danger">✗ Reprobada</span>';
+      btnLabel = 'Reintentar';
+    } else {
+      statusBadge = '<span class="badge badge-pending">⏳ Pendiente</span>';
+      btnLabel = 'Comenzar';
+    }
+    return `<div class="training-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div class="training-title" style="flex:1">${cap.titulo}</div>
+        ${statusBadge}
+      </div>
+      <div class="training-meta">
+        <span>📅 Vence: ${formatDate(cap.fechaVenc)}</span>
+        <span>❓ ${cap.preguntas.length} preguntas</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:12px;">${cap.descripcion}</div>
+      <button class="btn btn-primary btn-sm" onclick="${resultado ? `showConstancia('${cap.id}')` : `startTraining('${cap.id}')`}">${btnLabel} →</button>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// TRAINING FLOW
+// ============================================================
+let trainingStep = 'content'; // content | sign | quiz | result
+let quizAnswers = {};
+let signatureData = null;
+
+function startTraining(capId) {
+  const cap = appState.capacitaciones.find(c => c.id === capId);
+  if (!cap) return;
+  appState.currentCap = cap;
+  trainingStep = 'content';
+  quizAnswers = {};
+  signatureData = null;
+  document.getElementById('trainingHeaderTitle').textContent = cap.titulo;
+  renderTrainingContent();
+  showScreen('screenTraining');
+}
+
+function renderTrainingContent() {
+  const cap = appState.currentCap;
+  const el = document.getElementById('trainingContent');
+
+  // Steps: 0=content, 1=sign, 2=quiz, 3=result
+  const stepIdx = trainingStep === 'content' ? 0 : trainingStep === 'sign' ? 1 : trainingStep === 'quiz' ? 2 : 3;
+  const stepsHTML = [0,1,2,3].map(i =>
+    `<div class="step ${i < stepIdx ? 'done' : i === stepIdx ? 'active' : ''}"></div>`
+  ).join('');
+
+  if (trainingStep === 'content') {
+    el.innerHTML = `
+      <div class="steps">${stepsHTML}</div>
+      <div class="section-title">${cap.titulo}</div>
+      <div class="section-sub">Leé el material completo antes de continuar</div>
+      ${cap.contenido.map(item => renderContentBlock(item)).join('')}
+      <button class="btn btn-primary btn-full" onclick="trainingStep='sign';renderTrainingContent()">Continuar → Firmar</button>
+    `;
+  } else if (trainingStep === 'sign') {
+    el.innerHTML = `
+      <div class="steps">${stepsHTML}</div>
+      <div class="section-title">Firma Digital</div>
+      <div class="section-sub">Firmá con tu dedo para confirmar que leíste el material</div>
+      <div class="card">
+        <div style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Firmá en el espacio de abajo:</div>
+        <canvas id="signatureCanvas"></canvas>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn btn-secondary btn-sm" onclick="clearSignature()">Borrar</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="confirmSign()">Confirmar firma →</button>
+    `;
+    initSignaturePad();
+  } else if (trainingStep === 'quiz') {
+    el.innerHTML = `
+      <div class="steps">${stepsHTML}</div>
+      <div class="section-title">Evaluación</div>
+      <div class="section-sub">${cap.preguntas.length} preguntas · Mínimo 80% para aprobar</div>
+      ${cap.preguntas.map((q, qi) => renderQuizQuestion(q, qi)).join('')}
+      <button class="btn btn-primary btn-full" onclick="submitQuiz()">Enviar respuestas →</button>
+    `;
+  } else if (trainingStep === 'result') {
+    // already rendered
+  }
+  window.scrollTo(0, 0);
+}
+
+function renderContentBlock(item) {
+  if (item.type === 'texto') {
+    const html = item.value.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>').replace(/^## (.+)$/gm, '<h3 style="font-size:1rem;font-weight:800;margin:12px 0 6px;color:var(--accent);">$1</h3>').replace(/^- (.+)$/gm, '<li style="margin:4px 0 4px 16px;">$1</li>');
+    return `<div class="content-block"><div class="content-text">${html}</div></div>`;
+  }
+  if (item.type === 'youtube') {
+    return `<div class="content-block"><div class="yt-embed"><iframe src="https://www.youtube.com/embed/${item.value}" allowfullscreen loading="lazy"></iframe></div></div>`;
+  }
+  if (item.type === 'imagen') {
+    return `<div class="content-block"><img src="${item.value}" alt="Imagen" onerror="this.style.display='none'"></div>`;
+  }
+  return '';
+}
+
+function renderQuizQuestion(q, qi) {
+  return `<div class="quiz-question">
+    <div class="quiz-q-text">${qi+1}. ${q.pregunta}</div>
+    ${q.opciones.map((op, oi) => `
+      <div class="quiz-option ${quizAnswers[qi] === oi ? 'selected' : ''}" onclick="selectAnswer(${qi},${oi},this)">
+        <div class="quiz-radio"><div class="quiz-radio-dot"></div></div>
+        <div>${op}</div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function selectAnswer(qi, oi, el) {
+  quizAnswers[qi] = oi;
+  // Update UI
+  const question = el.closest('.quiz-question');
+  question.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ============================================================
+// SIGNATURE PAD
+// ============================================================
+function initSignaturePad() {
+  const canvas = document.getElementById('signatureCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 160;
+  ctx.strokeStyle = '#00d4aa';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  let drawing = false;
+  let hasSig = false;
+
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left) * (canvas.width / r.width), y: (src.clientY - r.top) * (canvas.height / r.height) };
+  }
+
+  function start(e) { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+  function move(e) { if (!drawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasSig = true; canvas.classList.add('has-sig'); }
+  function end() { drawing = false; if (hasSig) signatureData = canvas.toDataURL(); }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  canvas.addEventListener('touchend', end);
+}
+
+function clearSignature() {
+  const canvas = document.getElementById('signatureCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.classList.remove('has-sig');
+  signatureData = null;
+}
+
+function confirmSign() {
+  if (!signatureData) { alert('Por favor firmá antes de continuar.'); return; }
+  trainingStep = 'quiz';
+  renderTrainingContent();
+}
+
+// ============================================================
+// QUIZ SUBMIT
+// ============================================================
+function submitQuiz() {
+  const cap = appState.currentCap;
+  const total = cap.preguntas.length;
+  const answered = Object.keys(quizAnswers).length;
+  if (answered < total) {
+    alert(`Respondé todas las preguntas. Te faltan ${total - answered}.`);
+    return;
+  }
+  let correctas = 0;
+  cap.preguntas.forEach((q, i) => { if (quizAnswers[i] === q.correcta) correctas++; });
+  const pct = Math.round(correctas / total * 100);
+  const aprobado = pct >= 80;
+
+  // Save result
+  const resultado = {
+    id: 'r' + Date.now(),
+    empId: appState.currentEmployee.id,
+    capId: cap.id,
+    fecha: new Date().toISOString(),
+    pct,
+    correctas,
+    total,
+    aprobado,
+    firma: signatureData
+  };
+  appState.resultados.push(resultado);
+  saveState();
+
+  // Show result
+  const el = document.getElementById('trainingContent');
+  const stepIdx = 3;
+  const stepsHTML = [0,1,2,3].map(i => `<div class="step ${i < stepIdx ? 'done' : 'active'}"></div>`).join('');
+
+  // Show corrections
+  const corrections = cap.preguntas.map((q, i) => {
+    const selected = quizAnswers[i];
+    const correct = q.correcta;
+    const ok = selected === correct;
+    return `<div class="quiz-question" style="margin-bottom:12px;">
+      <div class="quiz-q-text">${i+1}. ${q.pregunta}</div>
+      ${q.opciones.map((op, oi) => `
+        <div class="quiz-option ${oi === correct ? 'correct' : oi === selected && !ok ? 'wrong' : ''}">
+          <div class="quiz-radio"><div class="quiz-radio-dot"></div></div>
+          <div style="flex:1">${op}</div>
+          ${oi === correct ? '<span style="color:var(--success);font-size:0.8rem;">✓</span>' : ''}
+          ${oi === selected && !ok ? '<span style="color:var(--danger);font-size:0.8rem;">✗</span>' : ''}
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="steps">${stepsHTML}</div>
+    <div class="result-circle ${aprobado ? 'pass' : 'fail'}">
+      <div class="result-pct">${pct}%</div>
+      <div class="result-label">${aprobado ? 'APROBADO' : 'REPROBADO'}</div>
+    </div>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-weight:800;font-size:1.1rem;color:${aprobado ? 'var(--success)' : 'var(--danger)'};">
+        ${aprobado ? '¡Felicitaciones! Aprobaste la capacitación' : 'No alcanzaste el mínimo requerido'}
+      </div>
+      <div style="color:var(--muted);margin-top:6px;font-size:0.85rem;">${correctas} de ${total} correctas · Mínimo requerido: 80%</div>
+    </div>
+    ${aprobado ? `<button class="btn btn-primary btn-full" onclick="showConstancia('${cap.id}')" style="margin-bottom:10px;">📄 Ver mi constancia</button>` : ''}
+    <div class="divider"></div>
+    <div style="font-weight:700;margin-bottom:12px;">Revisión de respuestas:</div>
+    ${corrections}
+    ${!aprobado ? `<button class="btn btn-secondary btn-full" onclick="startTraining('${cap.id}')">Reintentar →</button>` : ''}
+    <button class="btn btn-secondary btn-full" onclick="showScreen('screenEmployeeDash')" style="margin-top:8px;">Volver al inicio</button>
+  `;
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// CONSTANCIA
+// ============================================================
+function showConstancia(capId) {
+  const cap = appState.capacitaciones.find(c => c.id === capId);
+  const emp = appState.currentEmployee;
+  const resultado = appState.resultados.find(r => r.empId === emp.id && r.capId === capId && r.aprobado);
+  if (!cap || !emp || !resultado) return;
+
+  const fechaStr = formatDate(resultado.fecha);
+  const sigImg = resultado.firma ? `<img src="${resultado.firma}" style="max-height:60px;">` : '<div style="font-size:0.8rem;color:#94a3b8;">Firma digital registrada</div>';
+
+  document.getElementById('constanciaContainer').innerHTML = `
+    <div id="constanciaInner" style="background:white;color:#1a1a2e;border-radius:12px;padding:24px;font-family:'Sora',sans-serif;">
+      <div style="font-size:1.4rem;font-weight:800;color:#00d4aa;letter-spacing:-1px;margin-bottom:2px;">CapacitaSH</div>
+      <div style="font-size:0.7rem;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">SISTEMA DE GESTIÓN DE CAPACITACIONES</div>
+      <div style="height:2px;background:linear-gradient(90deg,#00d4aa,#0ea5e9);border-radius:1px;margin-bottom:16px;"></div>
+      <div style="font-size:0.75rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">CONSTANCIA DE CAPACITACIÓN</div>
+      <div style="font-size:1.5rem;font-weight:800;color:#0a0e1a;margin:8px 0;">${emp.nombre} ${emp.apellido}</div>
+      <div style="font-size:0.8rem;color:#64748b;margin-bottom:12px;">DNI: ${emp.dni} · Legajo: ${emp.legajo || '-'}</div>
+      <div style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:14px;text-align:left;">
+        <div style="font-size:0.7rem;color:#64748b;margin-bottom:4px;">CAPACITACIÓN REALIZADA</div>
+        <div style="font-weight:700;color:#1a1a2e;font-size:1rem;">${cap.titulo}</div>
+        <div style="font-size:0.8rem;color:#64748b;margin-top:4px;">${cap.descripcion || ''}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:#f0fdf4;border-radius:8px;padding:10px;text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:#22c55e;">${resultado.pct}%</div>
+          <div style="font-size:0.7rem;color:#64748b;">RESULTADO</div>
+        </div>
+        <div style="background:#f0f9ff;border-radius:8px;padding:10px;text-align:center;">
+          <div style="font-size:0.9rem;font-weight:700;color:#0ea5e9;">${fechaStr}</div>
+          <div style="font-size:0.7rem;color:#64748b;">FECHA DE REALIZACIÓN</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:4px;">
+        <div style="font-size:0.7rem;color:#94a3b8;margin-bottom:6px;">FIRMA DEL TRABAJADOR</div>
+        <div style="display:flex;justify-content:center;min-height:50px;align-items:center;">${sigImg}</div>
+      </div>
+      <div style="font-size:0.65rem;color:#cbd5e1;margin-top:12px;line-height:1.4;">
+        Documento generado digitalmente por CapacitaSH · Seguridad e Higiene en el Trabajo<br>
+        En cumplimiento de Ley 19.587 / Decreto 351/79 y resoluciones SRT aplicables<br>
+        ID: ${resultado.id}
+      </div>
+    </div>
+  `;
+  showScreen('screenConstancia');
+}
+
+function shareWhatsApp() {
+  const emp = appState.currentEmployee;
+  const cap = appState.currentCap;
+  const resultado = appState.resultados.find(r => r.empId === emp?.id && r.capId === cap?.id && r.aprobado);
+  const pct = resultado ? resultado.pct : 0;
+  const fecha = resultado ? formatDate(resultado.fecha) : '';
+  const msg = encodeURIComponent(`🦺 *CapacitaSH - Constancia de Capacitación*\n\n👤 ${emp?.nombre} ${emp?.apellido}\n📋 ${cap?.titulo}\n✅ Resultado: ${pct}%\n📅 Fecha: ${fecha}\n\n_Capacitación realizada en cumplimiento de Ley 19.587_`);
+  window.open(`https://wa.me/?text=${msg}`, '_blank');
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+});
+
+// ============================================================
+// HELPERS
+// ============================================================
+function formatDate(dateStr) {
+  if (!dateStr) return 'Sin fecha';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch { return dateStr; }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', () => {
+  loadState();
+
+  // Check URL params (deep link to capacitacion)
+  const urlParams = new URLSearchParams(window.location.search);
+  const capParam = urlParams.get('cap');
+
+  setTimeout(() => {
+    document.getElementById('loader').style.opacity = '0';
+    document.getElementById('loader').style.transition = 'opacity 0.4s';
+    setTimeout(() => {
+      document.getElementById('loader').style.display = 'none';
+      if (capParam) {
+        // Deep link: go to employee login first
+        showScreen('screenEmployeeLogin');
+        // After login, auto-start cap
+        const origLogin = window.employeeLogin;
+        window.employeeLogin = function() {
+          const dni = document.getElementById('empDni').value.trim();
+          const apellido = document.getElementById('empApellido').value.trim().toLowerCase();
+          const emp = appState.empleados.find(e => e.dni.toString() === dni && e.apellido.toLowerCase() === apellido);
+          if (emp) {
+            document.getElementById('loginError').classList.add('hidden');
+            appState.currentEmployee = emp;
+            renderEmployeeDash();
+            showScreen('screenEmployeeDash');
+            setTimeout(() => startTraining(capParam), 100);
+            window.employeeLogin = origLogin;
+          } else {
+            document.getElementById('loginError').classList.remove('hidden');
+          }
+        };
+      } else {
+        showScreen('screenSelector');
+      }
+    }, 400);
+  }, 1200);
+});
+</script>
+
+</body>
+</html>
