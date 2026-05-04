@@ -909,6 +909,8 @@ function initDemoData() {
   saveState();
 }
 
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUlQzjIyq6EgBlNSdgrmVl27BO6vWpQsmJnhm4kb7ssEmRJCLONPO5llfUGUp1krRj/exec';
+
 function saveState() {
   try { localStorage.setItem('capacitaSH', JSON.stringify(appState)); } catch(e) {}
 }
@@ -919,6 +921,32 @@ function loadState() {
     if (s) { appState = { ...appState, ...JSON.parse(s) }; }
   } catch(e) {}
   initDemoData();
+}
+
+async function syncEmpleadoToSheets(emp) {
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type':'application/json'}, body: JSON.stringify({tipo:'empleado',...emp}) });
+  } catch(e) {}
+}
+
+async function syncResultadoToSheets(resultado) {
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type':'application/json'}, body: JSON.stringify({tipo:'resultado',...resultado}) });
+  } catch(e) {}
+}
+
+async function cargarEmpleadosDesdeSheets() {
+  try {
+    const res = await fetch(SCRIPT_URL + '?tipo=getEmpleados');
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      data.forEach(emp => {
+        const exists = appState.empleados.find(e => e.dni === emp.dni);
+        if (!exists) appState.empleados.push(emp);
+      });
+      saveState();
+    }
+  } catch(e) {}
 }
 
 // ============================================================
@@ -1247,7 +1275,7 @@ function saveEmpleado() {
   const legajo = document.getElementById('meLegajo').value.trim();
   const telefono = document.getElementById('meTelefono').value.trim();
   if (!nombre || !apellido || !dni) { alert('Nombre, apellido y DNI son obligatorios.'); return; }
-  appState.empleados.push({ id: 'e' + Date.now(), nombre, apellido, dni, legajo, telefono });
+  const nuevoEmp = { id: 'e' + Date.now(), nombre, apellido, dni, legajo, telefono }; appState.empleados.push(nuevoEmp); syncEmpleadoToSheets(nuevoEmp);
   saveState();
   closeModal('modalEmpleado');
   renderEmpListAdmin();
@@ -1717,7 +1745,7 @@ function formatDate(dateStr) {
 // INIT
 // ============================================================
 window.addEventListener('load', () => {
-  loadState();
+  loadState();cargarEmpleadosDesdeSheets();
 
   // Check URL params (deep link to capacitacion)
   const urlParams = new URLSearchParams(window.location.search);
